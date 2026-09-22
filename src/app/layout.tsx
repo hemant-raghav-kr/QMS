@@ -4,9 +4,10 @@ import { ThemeProvider } from '@/components/theme/ThemeProvider';
 import { PwaRegister } from '@/components/layout/PwaRegister';
 import './globals.css';
 
-const appUrl =
+const appUrl = (
   process.env.NEXT_PUBLIC_APP_URL ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://quartzitemanagementsystem.vercel.app')
+).replace(/\/+$/, '');
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),

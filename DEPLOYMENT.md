@@ -51,7 +51,7 @@ SUPABASE_SECRET_KEY=[YOUR_SECRET_KEY]
 
 # --- APPLICATION CANONICAL URL ---
 # Must match your public production domain (no trailing slash)
-NEXT_PUBLIC_APP_URL=https://qms.yourdomain.com
+NEXT_PUBLIC_APP_URL=https://quartzitemanagementsystem.vercel.app
 
 # --- LIVEKIT SFU WEBRTC MEDIA ---
 # From LiveKit Cloud Console (https://cloud.livekit.io)
@@ -102,7 +102,7 @@ CRON_SECRET=[YOUR_32_CHAR_RANDOM_SECRET]
    npx.cmd supabase db execute --file supabase/seed.sql
    ```
 5. In Supabase Dashboard:
-   - **Authentication > URL Configuration**: Set Site URL to `https://qms.yourdomain.com` and add `https://qms.yourdomain.com/**` to Redirect URLs.
+   - **Authentication > URL Configuration**: Set Site URL to `https://quartzitemanagementsystem.vercel.app` and add `https://quartzitemanagementsystem.vercel.app/**` to Redirect URLs.
    - **Authentication > Email Templates**: Customize password reset and confirmation emails if desired.
 
 ### Step 4.2: LiveKit WebRTC SFU Media Setup
@@ -149,7 +149,7 @@ Because Vercel Hobby does not allow high-frequency sub-daily crons (e.g., `*/10 
 
 The external scheduler must make an HTTP `GET` request to your deployed reminders endpoint with the `Authorization` header:
 ```bash
-curl -X GET "https://qms.yourdomain.com/api/cron/reminders" \
+curl -X GET "https://quartzitemanagementsystem.vercel.app/api/cron/reminders" \
   -H "Authorization: Bearer <CRON_SECRET>"
 ```
 * The `/api/cron/reminders` endpoint remains fully functional and protected by `CRON_SECRET` authentication.
@@ -167,7 +167,7 @@ curl -X GET "https://qms.yourdomain.com/api/cron/reminders" \
 ## 5. Post-Deployment Verification Checklist
 
 Once deployed, verify the live deployment:
-- [ ] Visit `https://qms.yourdomain.com/api/health` — must return `{ status: "ok" }`.
+- [ ] Visit `https://quartzitemanagementsystem.vercel.app/api/health` — must return `{ status: "ok" }`.
 - [ ] Attempt unauthenticated `GET /api/cron/reminders` — must return HTTP `401 Unauthorized`.
 - [ ] Attempt unauthenticated `GET /api/reports/download` — must return HTTP `401 Unauthorized`.
 - [ ] Sign up a new user at `/signup` — check that the profile is created in Supabase.
