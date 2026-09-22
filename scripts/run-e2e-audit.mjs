@@ -35,25 +35,25 @@ function assert(condition, message) {
 // ---------------------------------------------------------------------------
 // 1. LIVE HTTP SECURITY CHECKS (Local Dev Server)
 // ---------------------------------------------------------------------------
-console.log('\n[1/7] Live API & Security Authorization Audit (http://localhost:3000)...');
+console.log('\n[1/7] Live API & Security Authorization Audit (https://quartzitemanagementsystem.vercel.app)...');
 
 try {
   // 1.1 Health endpoint check
-  const healthRes = await fetch('http://localhost:3000/api/health');
+  const healthRes = await fetch('https://quartzitemanagementsystem.vercel.app/api/health');
   assert(healthRes.status === 200, `Health check returned status ${healthRes.status} (expected 200)`);
   const healthJson = await healthRes.json();
   assert(healthJson.status === 'ok' && healthJson.app.includes('Quartzite'), 'Health check returned valid JSON metadata');
 
   // 1.2 Cron Reminders without auth must return 401
-  const remindersRes = await fetch('http://localhost:3000/api/cron/reminders');
+  const remindersRes = await fetch('https://quartzitemanagementsystem.vercel.app/api/cron/reminders');
   assert(remindersRes.status === 401, `/api/cron/reminders rejected unauthenticated trigger with status ${remindersRes.status} (expected 401)`);
 
   // 1.3 Cron Weekly Report without auth must return 401
-  const weeklyRes = await fetch('http://localhost:3000/api/cron/weekly-report');
+  const weeklyRes = await fetch('https://quartzitemanagementsystem.vercel.app/api/cron/weekly-report');
   assert(weeklyRes.status === 401, `/api/cron/weekly-report rejected unauthenticated trigger with status ${weeklyRes.status} (expected 401)`);
 
   // 1.4 Notifications Dispatch Push without auth must return 401
-  const pushRes = await fetch('http://localhost:3000/api/notifications/dispatch-push', {
+  const pushRes = await fetch('https://quartzitemanagementsystem.vercel.app/api/notifications/dispatch-push', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ user_id: 'test', title: 'test', message: 'test' }),
@@ -61,7 +61,7 @@ try {
   assert(pushRes.status === 401, `/api/notifications/dispatch-push rejected unauthenticated POST with status ${pushRes.status} (expected 401)`);
 
   // 1.5 Reports Download without auth must return 401
-  const downloadRes = await fetch('http://localhost:3000/api/reports/download?report_key=test');
+  const downloadRes = await fetch('https://quartzitemanagementsystem.vercel.app/api/reports/download?report_key=test');
   assert(downloadRes.status === 401, `/api/reports/download rejected unauthenticated access with status ${downloadRes.status} (expected 401)`);
 
 } catch (err) {

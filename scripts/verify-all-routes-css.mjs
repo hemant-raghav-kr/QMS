@@ -15,12 +15,12 @@ async function verifyAllRoutes() {
     '/signup'
   ];
 
-  console.log('Testing CSS delivery across all routes on http://localhost:3000:\n');
+  console.log('Testing CSS delivery across all routes on https://quartzitemanagementsystem.vercel.app:\n');
 
   let allOk = true;
 
   for (const route of routes) {
-    const url = `http://localhost:3000${route}`;
+    const url = `https://quartzitemanagementsystem.vercel.app${route}`;
     try {
       const res = await fetch(url);
       const html = await res.text();
@@ -30,7 +30,7 @@ async function verifyAllRoutes() {
       let cssSize = 0;
 
       for (const href of cssLinks) {
-        const cssUrl = href.startsWith('http') ? href : `http://localhost:3000${href}`;
+        const cssUrl = href.startsWith('http') ? href : `https://quartzitemanagementsystem.vercel.app${href}`;
         const cssRes = await fetch(cssUrl);
         if (cssRes.status === 200) {
           const cssText = await cssRes.text();

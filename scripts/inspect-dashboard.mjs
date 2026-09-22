@@ -1,5 +1,5 @@
 async function inspectDashboardClasses() {
-  const res = await fetch('http://localhost:3000/dashboard');
+  const res = await fetch('https://quartzitemanagementsystem.vercel.app/dashboard');
   const html = await res.text();
 
   const checks = [

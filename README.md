@@ -102,7 +102,7 @@ The migration automatically creates:
 ```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000).
+Open [https://quartzitemanagementsystem.vercel.app](https://quartzitemanagementsystem.vercel.app).
 
 ---
 

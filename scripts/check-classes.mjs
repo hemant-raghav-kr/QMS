@@ -1,9 +1,9 @@
 async function checkTailwindClasses() {
-  const pageRes = await fetch('http://localhost:3000/dashboard');
+  const pageRes = await fetch('https://quartzitemanagementsystem.vercel.app/dashboard');
   const html = await pageRes.text();
   const cssLinks = [...html.matchAll(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)].map(m => m[1]);
 
-  const cssUrl = `http://localhost:3000${cssLinks[0]}`;
+  const cssUrl = `https://quartzitemanagementsystem.vercel.app${cssLinks[0]}`;
   const cssRes = await fetch(cssUrl);
   const css = await cssRes.text();
 

@@ -1,9 +1,9 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
 
 async function runPdfTest() {
   console.log('======================================================================');
-  console.log('QUARTZITE MANAGEMENT SYSTEM — COMPLIANCE PDF GENERATOR TEST');
+  console.log('QUARTZITE MANAGEMENT SYSTEM � COMPLIANCE PDF GENERATOR TEST');
   console.log('======================================================================');
 
   const { generatePointLogPdf } = await import('../src/features/reports/services/pdfReportGenerator.ts');
@@ -145,18 +145,18 @@ async function runPdfTest() {
   if (!Buffer.isBuffer(pdfBuffer)) {
     throw new Error('generatePointLogPdf did not return a Node.js Buffer!');
   }
-  console.log(`  ✓ Buffer returned successfully: ${pdfBuffer.length} bytes in ${elapsed}ms`);
+  console.log(`  ? Buffer returned successfully: ${pdfBuffer.length} bytes in ${elapsed}ms`);
 
   const headerMagic = pdfBuffer.subarray(0, 5).toString('ascii');
   if (headerMagic !== '%PDF-') {
     throw new Error(`Invalid PDF header signature! Expected '%PDF-', got '${headerMagic}'`);
   }
-  console.log(`  ✓ PDF magic bytes verified: "${headerMagic}"`);
+  console.log(`  ? PDF magic bytes verified: "${headerMagic}"`);
 
   const outputPath = path.resolve('public', 'test-audit-report.pdf');
   fs.writeFileSync(outputPath, pdfBuffer);
-  console.log(`  ✓ Saved sample PDF to: ${outputPath}`);
-  console.log(`  ✓ Accessible via browser: http://localhost:3000/test-audit-report.pdf`);
+  console.log(`  ? Saved sample PDF to: ${outputPath}`);
+  console.log(`  ? Accessible via browser: https://quartzitemanagementsystem.vercel.app/test-audit-report.pdf`);
 
   console.log('\n======================================================================');
   console.log('PDF GENERATION TEST: PASSED (100% VALID)');

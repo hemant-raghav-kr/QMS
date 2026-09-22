@@ -1,6 +1,6 @@
 async function test() {
-  console.log('Fetching http://localhost:3000/dashboard...');
-  const res = await fetch('http://localhost:3000/dashboard');
+  console.log('Fetching https://quartzitemanagementsystem.vercel.app/dashboard...');
+  const res = await fetch('https://quartzitemanagementsystem.vercel.app/dashboard');
   console.log('Page status:', res.status);
   const html = await res.text();
   console.log('HTML size:', html.length);
@@ -9,7 +9,7 @@ async function test() {
   console.log('CSS Links:', cssLinks);
 
   for (const href of cssLinks) {
-    const cssUrl = href.startsWith('http') ? href : `http://localhost:3000${href}`;
+    const cssUrl = href.startsWith('http') ? href : `https://quartzitemanagementsystem.vercel.app${href}`;
     console.log(`\nFetching CSS from: ${cssUrl}`);
     const cssRes = await fetch(cssUrl);
     console.log('CSS HTTP Status:', cssRes.status);
