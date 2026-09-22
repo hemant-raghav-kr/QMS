@@ -126,18 +126,15 @@ Set `NEXT_PUBLIC_VAPID_PUBLIC_KEY` and `VAPID_PRIVATE_KEY` accordingly.
 
 ### Step 4.5: Scheduled Jobs / Cron Configuration
 Quartzite relies on two scheduled jobs:
-1. **Meeting Reminders (`/api/cron/reminders`)**: Runs every 5 or 10 minutes to dispatch T-30, T-10, and T=0 alerts.
-2. **Weekly Compliance Point Backup (`/api/cron/weekly-report`)**: Runs every Monday at 00:00 UTC to generate and email the PDF audit report.
+1. **Weekly Compliance Point Report (`/api/cron/weekly-report`)**: Runs every Monday at 00:00 UTC to generate and email the PDF audit report.
+2. **Meeting Reminders (`/api/cron/reminders`)**: Runs every 10 minutes to dispatch T-30, T-10, and T=0 alerts.
 
-#### Option A: Vercel Cron (Native)
-Add a `vercel.json` file in the root directory:
+#### 1. Vercel Hobby Native Cron (Weekly Report)
+Vercel Hobby tier permits scheduled jobs that run once per day or less. The weekly report job is handled natively via `vercel.json` in the root directory:
 ```json
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
-    {
-      "path": "/api/cron/reminders",
-      "schedule": "*/10 * * * *"
-    },
     {
       "path": "/api/cron/weekly-report",
       "schedule": "0 0 * * 1"
@@ -145,14 +142,17 @@ Add a `vercel.json` file in the root directory:
   ]
 }
 ```
-*Note: Vercel automatically passes the `CRON_SECRET` header to scheduled cron invocations if configured.*
+*Note: Vercel automatically passes the `Authorization: Bearer <CRON_SECRET>` header to scheduled cron invocations if `CRON_SECRET` is defined in the project environment variables.*
 
-#### Option B: GitHub Actions / External Cron (Upstash, Cron-Job.org)
-Send an HTTP GET request with the authorization header:
+#### 2. External Scheduler for Meeting Reminders (Every 10 Minutes)
+Because Vercel Hobby does not allow high-frequency sub-daily crons (e.g., `*/10 * * * *`), the meeting reminders endpoint requires an external scheduler (such as [cron-job.org](https://cron-job.org), Upstash QStash, or a GitHub Actions scheduled workflow) to invoke it every 10 minutes.
+
+The external scheduler must make an HTTP `GET` request to your deployed reminders endpoint with the `Authorization` header:
 ```bash
 curl -X GET "https://qms.yourdomain.com/api/cron/reminders" \
-  -H "Authorization: Bearer YOUR_CRON_SECRET"
+  -H "Authorization: Bearer <CRON_SECRET>"
 ```
+* The `/api/cron/reminders` endpoint remains fully functional and protected by `CRON_SECRET` authentication.
 
 ### Step 4.6: Deploy to Vercel
 1. Import the Git repository into Vercel.
