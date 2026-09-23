@@ -18,7 +18,8 @@ import {
 import { formatPoints, formatDate } from '@/lib/utils/formatters';
 import { useAuth } from '@/features/authentication/hooks/useAuth';
 import { isSuperAdmin } from '@/lib/auth/roles';
-import { Plus, Check, X, ScrollText, Edit3, ShieldAlert } from 'lucide-react';
+import { FEATURE_FLAGS } from '@/lib/config/features';
+import { Plus, Check, X, ScrollText, Edit3, ShieldAlert, AlertTriangle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { EmptyState } from '@/components/shared/EmptyState';
 import type { PointRule } from '@/types/database';
@@ -163,6 +164,12 @@ export default function AdminRulesPage() {
           ) : undefined
         }
       />
+
+      {!FEATURE_FLAGS.ENABLE_AUTOMATIC_POINTS && (
+        <Alert variant="warning" title="Automatic Points Generation Paused">
+          Automatic point awarding from attendance rules is temporarily paused. All existing rules, conditions, and point values are preserved intact and will resume when re-enabled. Manual point additions, deductions, and ledger operations remain fully functional.
+        </Alert>
+      )}
 
       {/* Info notice about historical immutability */}
       <div className="flex items-center gap-2.5 rounded-lg border border-border bg-card p-3 text-xs text-muted-foreground shadow-sm">

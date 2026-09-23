@@ -54,6 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         fullName: profile.full_name,
         avatarUrl: profile.avatar_url,
         role: profile.role,
+        createdAt: profile.created_at,
       });
     } catch (err) {
       console.error('Error loading profile:', err);

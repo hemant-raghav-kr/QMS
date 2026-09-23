@@ -9,6 +9,7 @@ import { formatDate, formatDuration } from '@/lib/utils/formatters';
 import { format } from 'date-fns';
 import { Calendar, Clock, ExternalLink, Video, ArrowRight } from 'lucide-react';
 import type { MeetingWithDetails } from '../services/meetingService';
+import { FEATURE_FLAGS } from '@/lib/config/features';
 
 interface MeetingCardProps {
   meeting: MeetingWithDetails;
@@ -17,7 +18,7 @@ interface MeetingCardProps {
 export function MeetingCard({ meeting }: MeetingCardProps) {
   const meetingDate = new Date(meeting.scheduled_at);
   const formattedTime = format(meetingDate, 'h:mm a');
-  const isInternal = meeting.meeting_type === 'INTERNAL';
+  const isInternal = FEATURE_FLAGS.ENABLE_INTERNAL_MEETINGS && meeting.meeting_type === 'INTERNAL';
 
   return (
     <Card className="group border-border bg-card hover:border-emerald-500/40 transition-all shadow-sm hover:shadow-md">
@@ -66,13 +67,13 @@ export function MeetingCard({ meeting }: MeetingCardProps) {
               </Button>
             ) : meeting.external_meeting_url ? (
               <Button
-                variant="secondary"
+                variant="primary"
                 size="sm"
                 className="gap-2 w-full sm:w-auto"
-                onClick={() => window.open(meeting.external_meeting_url || '', '_blank')}
+                onClick={() => window.open(meeting.external_meeting_url || '', '_blank', 'noopener,noreferrer')}
               >
                 <ExternalLink className="h-4 w-4" />
-                External Link
+                Join Meeting
               </Button>
             ) : (
               <Button

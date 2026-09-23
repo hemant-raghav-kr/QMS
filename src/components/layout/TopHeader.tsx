@@ -6,7 +6,7 @@ import { Breadcrumbs } from './Breadcrumbs';
 import { useAuth } from '@/features/authentication/hooks/useAuth';
 import { RoleBadge } from '../shared/RoleBadge';
 import { Avatar } from '@/components/ui/avatar';
-import { LogOut, Shield } from 'lucide-react';
+import { LogOut, Shield, User } from 'lucide-react';
 import { NotificationBellDropdown } from '@/features/notifications/components/NotificationBellDropdown';
 import { ThemeSwitcher } from '@/components/theme/ThemeSwitcher';
 
@@ -67,6 +67,14 @@ export function TopHeader() {
                 </div>
 
                 <div className="py-1">
+                  <Link
+                    href="/profile"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                  >
+                    <User className="h-3.5 w-3.5 text-slate-500" />
+                    Edit Profile
+                  </Link>
                   <Link
                     href="/points"
                     onClick={() => setMenuOpen(false)}

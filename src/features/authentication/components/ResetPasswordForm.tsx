@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Alert } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Layers } from 'lucide-react';
@@ -82,9 +83,8 @@ export function ResetPasswordForm() {
               </Alert>
             )}
 
-            <Input
+            <PasswordInput
               label="New Password"
-              type="password"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -92,9 +92,8 @@ export function ResetPasswordForm() {
               autoComplete="new-password"
             />
 
-            <Input
+            <PasswordInput
               label="Confirm New Password"
-              type="password"
               placeholder="••••••••"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}

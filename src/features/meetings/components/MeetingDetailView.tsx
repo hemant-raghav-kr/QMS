@@ -26,6 +26,7 @@ import {
   getMeetingParticipationSummary,
   ParticipantSessionSummary,
 } from '../services/attendanceSessionService';
+import { FEATURE_FLAGS } from '@/lib/config/features';
 
 interface MeetingDetailViewProps {
   meeting: MeetingWithDetails;
@@ -38,7 +39,7 @@ export function MeetingDetailView({
   participants,
   attendanceRecords = [],
 }: MeetingDetailViewProps) {
-  const isInternal = meeting.meeting_type === 'INTERNAL';
+  const isInternal = FEATURE_FLAGS.ENABLE_INTERNAL_MEETINGS && meeting.meeting_type === 'INTERNAL';
   const [copied, setCopied] = React.useState(false);
   const [participation, setParticipation] = React.useState<ParticipantSessionSummary[]>([]);
   const [isLoadingParticipation, setIsLoadingParticipation] = React.useState(true);
@@ -151,10 +152,10 @@ export function MeetingDetailView({
                   variant="primary"
                   size="lg"
                   className="gap-2 w-full sm:w-auto"
-                  onClick={() => window.open(meeting.external_meeting_url || '', '_blank')}
+                  onClick={() => window.open(meeting.external_meeting_url || '', '_blank', 'noopener,noreferrer')}
                 >
                   <ExternalLink className="h-5 w-5" />
-                  Open External Meeting Link
+                  Join Meeting
                 </Button>
                 <Button
                   variant="outline"

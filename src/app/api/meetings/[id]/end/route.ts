@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { isAdmin } from '@/lib/auth/roles';
+import { FEATURE_FLAGS } from '@/lib/config/features';
 
 interface RouteContext {
   params: Promise<{
@@ -64,15 +65,17 @@ export async function POST(request: NextRequest, context: RouteContext) {
       console.warn('finalize_meeting_attendance RPC executed or deferred:', rpcErr);
     }
 
-    // 6. Automatically evaluate attendance and award points
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).rpc('process_meeting_points', {
-        target_meeting_id: meetingId,
-        p_actor_id: user.id,
-      });
-    } catch (ptsErr) {
-      console.warn('process_meeting_points RPC executed or deferred:', ptsErr);
+    // 6. Automatically evaluate attendance and award points (only if feature enabled)
+    if (FEATURE_FLAGS.ENABLE_AUTOMATIC_POINTS) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (supabase as any).rpc('process_meeting_points', {
+          target_meeting_id: meetingId,
+          p_actor_id: user.id,
+        });
+      } catch (ptsErr) {
+        console.warn('process_meeting_points RPC executed or deferred:', ptsErr);
+      }
     }
 
     return NextResponse.json({

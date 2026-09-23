@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/client';
 import type { PointRule } from '@/types/database';
+import { FEATURE_FLAGS } from '@/lib/config/features';
 
 export interface RuleEvaluationResult {
   success: boolean;
@@ -17,6 +18,14 @@ export async function evaluateMeetingAttendancePoints(
   meetingId: string,
   actorId?: string
 ): Promise<RuleEvaluationResult> {
+  if (!FEATURE_FLAGS.ENABLE_AUTOMATIC_POINTS) {
+    return {
+      success: true,
+      message: 'Automatic point evaluation is temporarily disabled.',
+      transactionsCreated: 0,
+    };
+  }
+
   try {
     const supabase = createClient();
 
@@ -53,6 +62,14 @@ async function fallbackEvaluateAttendancePoints(
   meetingId: string,
   actorId?: string
 ): Promise<RuleEvaluationResult> {
+  if (!FEATURE_FLAGS.ENABLE_AUTOMATIC_POINTS) {
+    return {
+      success: true,
+      message: 'Automatic point evaluation is temporarily disabled.',
+      transactionsCreated: 0,
+    };
+  }
+
   try {
     const supabase = createClient();
 

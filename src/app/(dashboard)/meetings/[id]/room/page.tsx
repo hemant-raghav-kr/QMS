@@ -3,6 +3,7 @@ import { getMeetingById } from '@/features/meetings/services/meetingService';
 import { MeetingRoom } from '@/features/meetings/components/meeting-room/MeetingRoom';
 import { notFound, redirect } from 'next/navigation';
 import { isAdmin } from '@/lib/auth/roles';
+import { FEATURE_FLAGS } from '@/lib/config/features';
 
 interface MeetingRoomPageProps {
   params: Promise<{
@@ -37,8 +38,8 @@ export default async function MeetingRoomPage({ params }: MeetingRoomPageProps) 
     notFound();
   }
 
-  // External meetings should not enter the internal video room
-  if (meeting.meeting_type === 'EXTERNAL') {
+  // Internal video rooms disabled or meeting is external
+  if (!FEATURE_FLAGS.ENABLE_INTERNAL_MEETINGS || meeting.meeting_type === 'EXTERNAL') {
     redirect(`/meetings/${meetingId}`);
   }
 

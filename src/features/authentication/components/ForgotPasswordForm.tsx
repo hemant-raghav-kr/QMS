@@ -23,8 +23,13 @@ export function ForgotPasswordForm() {
     setIsLoading(true);
 
     try {
+      const appUrl = (
+        process.env.NEXT_PUBLIC_APP_URL ||
+        (typeof window !== 'undefined' ? window.location.origin : 'https://quartzitemanagementsystem.vercel.app')
+      ).replace(/\/+$/, '');
+
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${appUrl}/reset-password`,
       });
 
       if (resetError) throw resetError;

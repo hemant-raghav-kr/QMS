@@ -6,6 +6,7 @@ export interface CurrentUser {
   fullName: string | null;
   avatarUrl: string | null;
   role: UserRole;
+  createdAt?: string;
 }
 
 export interface AuthState {

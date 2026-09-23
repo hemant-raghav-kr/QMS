@@ -63,6 +63,7 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith('/points') ||
     pathname.startsWith('/announcements') ||
     pathname.startsWith('/notifications') ||
+    pathname.startsWith('/profile') ||
     pathname.startsWith('/admin');
 
   // Unauthenticated user attempting to access protected route

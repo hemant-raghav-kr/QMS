@@ -9,6 +9,7 @@ import { Alert } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { createMeeting } from '../services/meetingService';
 import { MeetingType, Profile } from '@/types/database';
+import { FEATURE_FLAGS } from '@/lib/config/features';
 import { Video, Globe, Users, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
@@ -22,7 +23,9 @@ export function CreateMeetingForm({ availableMembers }: CreateMeetingFormProps) 
   const [date, setDate] = React.useState('');
   const [time, setTime] = React.useState('10:00');
   const [durationMinutes, setDurationMinutes] = React.useState('60');
-  const [meetingType, setMeetingType] = React.useState<MeetingType>('INTERNAL');
+  const [meetingType, setMeetingType] = React.useState<MeetingType>(
+    FEATURE_FLAGS.ENABLE_INTERNAL_MEETINGS ? 'INTERNAL' : 'EXTERNAL'
+  );
   const [externalMeetingUrl, setExternalMeetingUrl] = React.useState('');
   const [selectedParticipants, setSelectedParticipants] = React.useState<string[]>([]);
   const [error, setError] = React.useState<string | null>(null);
@@ -55,8 +58,10 @@ export function CreateMeetingForm({ availableMembers }: CreateMeetingFormProps) 
       return;
     }
 
-    if (meetingType === 'EXTERNAL' && !externalMeetingUrl.trim()) {
-      setError('External meeting link is required for external meetings.');
+    const effectiveMeetingType = FEATURE_FLAGS.ENABLE_INTERNAL_MEETINGS ? meetingType : 'EXTERNAL';
+
+    if (effectiveMeetingType === 'EXTERNAL' && !externalMeetingUrl.trim()) {
+      setError('A valid Meeting Link (e.g. Google Meet, Zoom, Teams) is required.');
       return;
     }
 
@@ -70,7 +75,7 @@ export function CreateMeetingForm({ availableMembers }: CreateMeetingFormProps) 
         description: description.trim() || undefined,
         scheduled_at: scheduledAt,
         duration_minutes: parseInt(durationMinutes, 10) || 60,
-        meeting_type: meetingType,
+        meeting_type: effectiveMeetingType,
         external_meeting_url: externalMeetingUrl.trim() || undefined,
         participant_ids: selectedParticipants,
       });
@@ -104,7 +109,9 @@ export function CreateMeetingForm({ availableMembers }: CreateMeetingFormProps) 
         <CardHeader>
           <CardTitle>Schedule New Meeting</CardTitle>
           <CardDescription>
-            Create an internal Quartzite video session or an external scheduled meeting
+            {FEATURE_FLAGS.ENABLE_INTERNAL_MEETINGS
+              ? 'Create an internal Quartzite video session or an external scheduled meeting'
+              : 'Schedule an event with an external meeting link (Google Meet, Zoom, Microsoft Teams)'}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -167,67 +174,85 @@ export function CreateMeetingForm({ availableMembers }: CreateMeetingFormProps) 
               </Select>
             </div>
 
-            {/* Meeting Type Selector */}
-            <div className="space-y-2">
-              <label className="block text-xs font-medium uppercase tracking-wider text-slate-700 dark:text-slate-300">
-                Meeting Infrastructure
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setMeetingType('INTERNAL')}
-                  className={`p-4 rounded-xl border text-left flex items-start gap-3 transition-all ${
-                    meetingType === 'INTERNAL'
-                      ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20 ring-2 ring-emerald-500/20'
-                      : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
-                  }`}
-                >
-                  <div className={`p-2 rounded-lg ${meetingType === 'INTERNAL' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 dark:bg-slate-800'}`}>
-                    <Video className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-slate-900 dark:text-white">
-                      Quartzite Video Meeting
-                    </h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                      Internal WebRTC conference with automated attendance
-                    </p>
-                  </div>
-                </button>
+            {FEATURE_FLAGS.ENABLE_INTERNAL_MEETINGS ? (
+              <>
+                {/* Meeting Type Selector */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-medium uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                    Meeting Infrastructure
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setMeetingType('INTERNAL')}
+                      className={`p-4 rounded-xl border text-left flex items-start gap-3 transition-all ${
+                        meetingType === 'INTERNAL'
+                          ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20 ring-2 ring-emerald-500/20'
+                          : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                      }`}
+                    >
+                      <div className={`p-2 rounded-lg ${meetingType === 'INTERNAL' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 dark:bg-slate-800'}`}>
+                        <Video className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold text-slate-900 dark:text-white">
+                          Quartzite Video Meeting
+                        </h4>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                          Internal WebRTC conference with automated attendance
+                        </p>
+                      </div>
+                    </button>
 
-                <button
-                  type="button"
-                  onClick={() => setMeetingType('EXTERNAL')}
-                  className={`p-4 rounded-xl border text-left flex items-start gap-3 transition-all ${
-                    meetingType === 'EXTERNAL'
-                      ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20 ring-2 ring-emerald-500/20'
-                      : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
-                  }`}
-                >
-                  <div className={`p-2 rounded-lg ${meetingType === 'EXTERNAL' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 dark:bg-slate-800'}`}>
-                    <Globe className="h-5 w-5" />
+                    <button
+                      type="button"
+                      onClick={() => setMeetingType('EXTERNAL')}
+                      className={`p-4 rounded-xl border text-left flex items-start gap-3 transition-all ${
+                        meetingType === 'EXTERNAL'
+                          ? 'border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20 ring-2 ring-emerald-500/20'
+                          : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                      }`}
+                    >
+                      <div className={`p-2 rounded-lg ${meetingType === 'EXTERNAL' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-600 dark:bg-slate-800'}`}>
+                        <Globe className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold text-slate-900 dark:text-white">
+                          External Meeting Link
+                        </h4>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                          Third-party meeting (Google Meet, Zoom, Teams)
+                        </p>
+                      </div>
+                    </button>
                   </div>
-                  <div>
-                    <h4 className="text-sm font-semibold text-slate-900 dark:text-white">
-                      External Meeting Link
-                    </h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                      Third-party meeting (Google Meet, Zoom, Teams)
-                    </p>
-                  </div>
-                </button>
+                </div>
+
+                {meetingType === 'EXTERNAL' && (
+                  <Input
+                    label="External Meeting URL"
+                    type="url"
+                    placeholder="https://meet.google.com/xyz-abcd-efg"
+                    value={externalMeetingUrl}
+                    onChange={(e) => setExternalMeetingUrl(e.target.value)}
+                    required
+                  />
+                )}
+              </>
+            ) : (
+              <div className="space-y-1.5">
+                <Input
+                  label="Meeting Link (Required)"
+                  type="url"
+                  placeholder="https://meet.google.com/xyz-abcd-efg or https://zoom.us/j/..."
+                  value={externalMeetingUrl}
+                  onChange={(e) => setExternalMeetingUrl(e.target.value)}
+                  required
+                />
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Provide an external meeting link for attendees (Google Meet, Zoom, Microsoft Teams, etc.).
+                </p>
               </div>
-            </div>
-
-            {meetingType === 'EXTERNAL' && (
-              <Input
-                label="External Meeting URL"
-                type="url"
-                placeholder="https://meet.google.com/xyz-abcd-efg"
-                value={externalMeetingUrl}
-                onChange={(e) => setExternalMeetingUrl(e.target.value)}
-                required
-              />
             )}
 
             {/* Participants Selector */}

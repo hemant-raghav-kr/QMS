@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { AccessToken } from 'livekit-server-sdk';
 import { isAdmin } from '@/lib/auth/roles';
+import { FEATURE_FLAGS } from '@/lib/config/features';
 
 interface RouteContext {
   params: Promise<{
@@ -11,6 +12,16 @@ interface RouteContext {
 
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
+    if (!FEATURE_FLAGS.ENABLE_INTERNAL_MEETINGS) {
+      return NextResponse.json(
+        {
+          error: 'Built-in video meetings are temporarily disabled. Please use the external meeting link.',
+          disabled: true,
+        },
+        { status: 403 }
+      );
+    }
+
     const { id: meetingId } = await context.params;
     const supabase = await createClient();
 

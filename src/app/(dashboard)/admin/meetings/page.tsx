@@ -215,7 +215,7 @@ export default function AdminMeetingsPage() {
                         <Link
                           href={`/meetings/${m.id}`}
                           className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white transition-colors"
-                          title="View / Enter Room"
+                          title="View Details"
                         >
                           <ExternalLink className="h-4 w-4" />
                         </Link>
