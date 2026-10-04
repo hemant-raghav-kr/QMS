@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Alert } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Layers, ArrowLeft } from 'lucide-react';
+import { getAppUrl } from '@/lib/config/app-url';
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = React.useState('');
@@ -23,10 +24,7 @@ export function ForgotPasswordForm() {
     setIsLoading(true);
 
     try {
-      const appUrl = (
-        process.env.NEXT_PUBLIC_APP_URL ||
-        (typeof window !== 'undefined' ? window.location.origin : 'https://quartzitemanagementsystem.vercel.app')
-      ).replace(/\/+$/, '');
+      const appUrl = getAppUrl();
 
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
         redirectTo: `${appUrl}/reset-password`,

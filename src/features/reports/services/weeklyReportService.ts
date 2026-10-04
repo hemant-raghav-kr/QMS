@@ -1,6 +1,7 @@
 import { getAdminClient } from '@/lib/supabase/admin';
 import { generatePointLogPdf, PointTransactionWithMember } from './pdfReportGenerator';
 import { sendEmail } from './emailService';
+import { getAppUrl } from '@/lib/config/app-url';
 import type { WeeklyReport, WeeklyReportStatus } from '@/types/database';
 
 export interface WeeklyReportResult {
@@ -209,6 +210,7 @@ export async function generateWeeklyPointReport(options?: {
       </p>
 
       <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #94a3b8; text-align: center;">
+        <p style="margin: 0 0 6px 0;"><a href="${getAppUrl()}/admin/reports" style="color: #059669; text-decoration: none; font-weight: 500;">Access Report Archive in QMS Portal</a></p>
         Quartzite Management System • Automated Audit Service • Key: ${reportKey}
       </div>
     </div>

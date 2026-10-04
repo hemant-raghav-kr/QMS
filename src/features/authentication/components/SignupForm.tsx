@@ -10,6 +10,7 @@ import { PasswordInput } from '@/components/ui/PasswordInput';
 import { Alert } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Layers } from 'lucide-react';
+import { getAppUrl } from '@/lib/config/app-url';
 
 export function SignupForm() {
   const [fullName, setFullName] = React.useState('');
@@ -34,10 +35,12 @@ export function SignupForm() {
     }
 
     try {
+      const appUrl = getAppUrl();
       const { data, error: signUpError } = await supabase.auth.signUp({
         email: email.trim(),
         password,
         options: {
+          emailRedirectTo: `${appUrl}/callback`,
           data: {
             full_name: fullName.trim(),
           },

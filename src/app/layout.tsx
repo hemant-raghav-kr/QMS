@@ -2,12 +2,10 @@ import type { Metadata, Viewport } from 'next';
 import { AuthProvider } from '@/features/authentication/auth-provider';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
 import { PwaRegister } from '@/components/layout/PwaRegister';
+import { getAppUrl } from '@/lib/config/app-url';
 import './globals.css';
 
-const appUrl = (
-  process.env.NEXT_PUBLIC_APP_URL ||
-  'https://quartzitemanagementsystem.vercel.app'
-).replace(/\/+$/, '');
+const appUrl = getAppUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
@@ -17,6 +15,22 @@ export const metadata: Metadata = {
   },
   description: 'Enterprise operations, meetings, attendance, and member points platform.',
   manifest: '/manifest.json',
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: appUrl,
+    siteName: 'Quartzite Management System',
+    title: 'Quartzite Management System (QMS)',
+    description: 'Enterprise operations, meetings, attendance, and member points platform.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Quartzite Management System (QMS)',
+    description: 'Enterprise operations, meetings, attendance, and member points platform.',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
