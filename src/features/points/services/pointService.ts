@@ -29,18 +29,33 @@ export interface UserPointsSummary {
  * Total points is strictly SUM(amount).
  */
 export async function getUserPointsSummary(userId: string): Promise<UserPointsSummary> {
-  const transactions = await getUserTransactions(userId);
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('point_transactions')
+    .select('amount')
+    .eq('user_id', userId);
+
+  if (error || !data) {
+    console.error(`Error fetching user points summary for ${userId}:`, error);
+    return {
+      totalPoints: 0,
+      pointsEarned: 0,
+      pointsDeducted: 0,
+      transactionsCount: 0,
+    };
+  }
 
   let totalPoints = 0;
   let pointsEarned = 0;
   let pointsDeducted = 0;
 
-  transactions.forEach((tx) => {
-    totalPoints += tx.amount;
-    if (tx.amount > 0) {
-      pointsEarned += tx.amount;
-    } else if (tx.amount < 0) {
-      pointsDeducted += Math.abs(tx.amount);
+  data.forEach((tx) => {
+    const amt = Number(tx.amount) || 0;
+    totalPoints += amt;
+    if (amt > 0) {
+      pointsEarned += amt;
+    } else if (amt < 0) {
+      pointsDeducted += Math.abs(amt);
     }
   });
 
@@ -48,8 +63,59 @@ export async function getUserPointsSummary(userId: string): Promise<UserPointsSu
     totalPoints,
     pointsEarned,
     pointsDeducted,
-    transactionsCount: transactions.length,
+    transactionsCount: data.length,
   };
+}
+
+/**
+ * Retrieves aggregate current point balance for all members.
+ * Single lightweight query SUM(amount) grouped by user_id to prevent N+1 queries.
+ */
+export async function getAllMemberBalances(): Promise<Record<string, number>> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('point_transactions')
+    .select('user_id, amount');
+
+  if (error || !data) {
+    console.error('Error fetching all member balances:', error);
+    return {};
+  }
+
+  const balances: Record<string, number> = {};
+  data.forEach((tx) => {
+    balances[tx.user_id] = (balances[tx.user_id] || 0) + (Number(tx.amount) || 0);
+  });
+
+  return balances;
+}
+
+/**
+ * Retrieves recent transactions for a single member on demand (lazy loading).
+ */
+export async function getMemberRecentTransactions(
+  userId: string,
+  limit = 5
+): Promise<PointTransactionWithDetails[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from('point_transactions')
+    .select(`
+      *,
+      rule:point_rules(*),
+      creator:profiles!point_transactions_created_by_fkey(id, full_name, email),
+      reversal_of:point_transactions!reversal_of_id(*)
+    `)
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error(`Error fetching member recent transactions for ${userId}:`, error);
+    return [];
+  }
+
+  return (data as unknown as PointTransactionWithDetails[]) || [];
 }
 
 /**

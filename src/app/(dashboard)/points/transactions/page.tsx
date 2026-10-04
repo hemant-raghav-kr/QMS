@@ -17,20 +17,29 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { Plus, Filter, Search, ShieldCheck } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Profile, PointRule } from '@/types/database';
 
-export default function TransactionsPage() {
+function TransactionsPageContent() {
   const { user } = useAuth();
   const isAdminUser = canManagePoints(user?.role);
+  const searchParams = useSearchParams();
+  const searchFromUrl = searchParams.get('search') || searchParams.get('q') || '';
 
   const [transactions, setTransactions] = React.useState<PointTransactionWithDetails[]>([]);
   const [members, setMembers] = React.useState<Profile[]>([]);
   const [rules, setRules] = React.useState<PointRule[]>([]);
   const [selectedType, setSelectedType] = React.useState<string>('all');
-  const [searchQuery, setSearchQuery] = React.useState<string>('');
+  const [searchQuery, setSearchQuery] = React.useState<string>(searchFromUrl);
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    if (searchFromUrl) {
+      setSearchQuery(searchFromUrl);
+    }
+  }, [searchFromUrl]);
 
   const loadData = React.useCallback(async () => {
     if (!user) return;
@@ -145,5 +154,13 @@ export default function TransactionsPage() {
         />
       )}
     </div>
+  );
+}
+
+export default function TransactionsPage() {
+  return (
+    <React.Suspense fallback={<Skeleton className="h-64 w-full" />}>
+      <TransactionsPageContent />
+    </React.Suspense>
   );
 }

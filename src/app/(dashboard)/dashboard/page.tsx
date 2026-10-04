@@ -68,15 +68,20 @@ export default function DashboardPage() {
       setIsLoading(true);
 
       try {
-        const [meetingsData, announcementsData, notificationsData] = await Promise.all([
-          getMeetings('upcoming'),
-          getAnnouncements(),
-          getUserNotifications(user.id),
-        ]);
+        const [meetingsData, announcementsData, notificationsData, summaryData, userTxData] =
+          await Promise.all([
+            getMeetings('upcoming'),
+            getAnnouncements(),
+            getUserNotifications(user.id),
+            getUserPointsSummary(user.id),
+            getUserTransactions(user.id),
+          ]);
 
         setUpcomingMeetings(meetingsData);
         setAnnouncements(announcementsData);
         setNotifications(notificationsData);
+        setPointsSummary(summaryData);
+        setRecentTransactions(userTxData.slice(0, 5));
 
         if (userIsAdmin) {
           const [profilesData, allTxData, allAttendanceData] = await Promise.all([
@@ -96,14 +101,6 @@ export default function DashboardPage() {
           });
           setAdminPointsIssued(issued);
           setAdminPointsDeducted(deducted);
-          setRecentTransactions(allTxData.slice(0, 5));
-        } else {
-          const [summaryData, userTxData] = await Promise.all([
-            getUserPointsSummary(user.id),
-            getUserTransactions(user.id),
-          ]);
-          setPointsSummary(summaryData);
-          setRecentTransactions(userTxData.slice(0, 5));
         }
       } catch (err) {
         console.error('Error loading dashboard data:', err);
@@ -284,14 +281,20 @@ export default function DashboardPage() {
           <CardContent className="p-5 sm:p-6">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
-                Your Current Balance
+                Your Points
               </span>
               <div className="rounded-xl bg-emerald-500/10 p-2.5 text-emerald-600 dark:text-emerald-400">
                 <Coins className="h-5 w-5" />
               </div>
             </div>
             <div className="mt-3 flex items-baseline gap-2">
-              <span className="text-3xl sm:text-4xl font-black tracking-tight text-foreground">
+              <span
+                className={`text-3xl sm:text-4xl font-black tracking-tight ${
+                  !isLoading && pointsSummary.totalPoints < 0
+                    ? 'text-rose-600 dark:text-rose-400'
+                    : 'text-foreground'
+                }`}
+              >
                 {isLoading ? '—' : pointsSummary.totalPoints}
               </span>
               <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">pts</span>
