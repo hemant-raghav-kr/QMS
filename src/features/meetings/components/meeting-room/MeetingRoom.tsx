@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { VolumeX } from 'lucide-react';
 import { useMeetingRoom, MeetingUserIdentity } from '../../hooks/useMeetingRoom';
 import { useMediaDevices } from '../../hooks/useMediaDevices';
 import { MeetingHeader } from './MeetingHeader';
@@ -40,14 +41,40 @@ export function MeetingRoom({
     await room.switchMicrophone(deviceId);
   };
 
-  const handleSelectSpeaker = (deviceId: string) => {
+  const handleSelectSpeaker = async (deviceId: string) => {
     mediaDevices.setSelectedAudioOutput(deviceId);
+    await room.switchSpeaker(deviceId);
   };
 
   const totalParticipants = 1 + room.remoteParticipants.size;
 
   return (
-    <div className="relative flex flex-col h-screen w-screen overflow-hidden bg-slate-950 text-slate-100 select-none">
+    <div
+      onClick={() => {
+        if (!room.canPlaybackAudio) {
+          room.startAudio();
+        }
+      }}
+      className="relative flex flex-col h-screen w-screen overflow-hidden bg-slate-950 text-slate-100 select-none"
+    >
+      {/* Autoplay blocked notification banner */}
+      {!room.canPlaybackAudio && (
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-4 py-2.5 rounded-xl bg-amber-500 text-slate-950 font-medium text-xs sm:text-sm shadow-2xl backdrop-blur animate-in fade-in slide-in-from-top-2">
+          <VolumeX className="h-4 w-4 shrink-0" />
+          <span>Audio playback paused by browser autoplay policy.</span>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              room.startAudio();
+            }}
+            className="px-3 py-1 rounded-lg bg-slate-950 text-white font-bold text-xs hover:bg-slate-800 transition-colors shadow"
+          >
+            Enable Audio
+          </button>
+        </div>
+      )}
+
       {/* Top Meeting Header Bar */}
       <MeetingHeader
         title={meetingTitle}

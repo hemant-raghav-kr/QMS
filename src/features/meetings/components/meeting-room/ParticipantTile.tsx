@@ -31,58 +31,6 @@ export function ParticipantTile({
   className,
 }: ParticipantTileProps) {
   const videoRef = React.useRef<HTMLVideoElement | null>(null);
-  const audioRef = React.useRef<HTMLAudioElement | null>(null);
-
-  // Explicitly ensure video element is permanently muted to prevent browsers from flagging camera video as playing audio
-  React.useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.muted = true;
-      videoRef.current.defaultMuted = true;
-    }
-  }, []);
-
-  // Attach video track
-  React.useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.muted = true;
-      videoRef.current.defaultMuted = true;
-      if (videoTrack && isVideoEnabled) {
-        const stream = new MediaStream([videoTrack]);
-        videoRef.current.srcObject = stream;
-        videoRef.current.play().catch(() => {});
-      } else {
-        videoRef.current.pause();
-        videoRef.current.srcObject = null;
-      }
-    }
-    return () => {
-      if (videoRef.current) {
-        videoRef.current.pause();
-        videoRef.current.srcObject = null;
-      }
-    };
-  }, [videoTrack, isVideoEnabled]);
-
-  // Attach audio track (only for remote participants; local is muted in element to prevent feedback loop)
-  React.useEffect(() => {
-    if (audioRef.current && !isLocal) {
-      if (audioTrack && isAudioEnabled) {
-        const stream = new MediaStream([audioTrack]);
-        audioRef.current.srcObject = stream;
-        audioRef.current.play().catch(() => {});
-      } else {
-        audioRef.current.pause();
-        audioRef.current.srcObject = null;
-      }
-    }
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.srcObject = null;
-      }
-    };
-  }, [audioTrack, isAudioEnabled, isLocal]);
-
   const hasActiveVideo = Boolean(videoTrack && isVideoEnabled);
 
   return (
@@ -95,10 +43,6 @@ export function ParticipantTile({
         className
       )}
     >
-      {/* Remote Audio Element (Hidden) - Only mounted when an active audio track exists */}
-      {!isLocal && isAudioEnabled && Boolean(audioTrack) && (
-        <audio ref={audioRef} autoPlay playsInline />
-      )}
 
       {/* Real Video Element */}
       <video

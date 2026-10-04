@@ -41,6 +41,7 @@ export function useMeetingRoom({ meetingId, initialUser }: UseMeetingRoomOptions
   const [localVideoTrack, setLocalVideoTrack] = React.useState<MediaStreamTrack | null>(null);
   const [localAudioTrack, setLocalAudioTrack] = React.useState<MediaStreamTrack | null>(null);
   const [localScreenTrack, setLocalScreenTrack] = React.useState<MediaStreamTrack | null>(null);
+  const [canPlaybackAudio, setCanPlaybackAudio] = React.useState<boolean>(true);
 
   // Remote participants & Active speaker
   const [remoteParticipants, setRemoteParticipants] = React.useState<Map<string, RemoteParticipantState>>(
@@ -186,6 +187,39 @@ export function useMeetingRoom({ meetingId, initialUser }: UseMeetingRoomOptions
                 });
               }
             },
+            onParticipantTrackMuted: (identity, kind) => {
+              if (!isCancelled) {
+                setRemoteParticipants((prev) => {
+                  const updated = new Map(prev);
+                  const p = updated.get(identity);
+                  if (p) {
+                    if (kind === 'audio') p.isAudioEnabled = false;
+                    if (kind === 'video') p.isVideoEnabled = false;
+                    updated.set(identity, { ...p });
+                  }
+                  return updated;
+                });
+              }
+            },
+            onParticipantTrackUnmuted: (identity, kind) => {
+              if (!isCancelled) {
+                setRemoteParticipants((prev) => {
+                  const updated = new Map(prev);
+                  const p = updated.get(identity);
+                  if (p) {
+                    if (kind === 'audio') p.isAudioEnabled = true;
+                    if (kind === 'video') p.isVideoEnabled = true;
+                    updated.set(identity, { ...p });
+                  }
+                  return updated;
+                });
+              }
+            },
+            onAudioPlaybackStatusChanged: (canPlay) => {
+              if (!isCancelled) {
+                setCanPlaybackAudio(canPlay);
+              }
+            },
             onError: (err) => {
               console.error('LiveKit Media error:', err);
             },
@@ -299,6 +333,17 @@ export function useMeetingRoom({ meetingId, initialUser }: UseMeetingRoomOptions
       const success = await mediaProviderRef.current.setMicrophoneEnabled(nextState);
       setIsMicOn(success ? nextState : isMicOn);
       syncLocalTracks();
+      if (channelRef.current && success) {
+        channelRef.current.track({
+          userId: initialUser.id,
+          name: initialUser.name,
+          isHost: initialUser.isHost,
+          isMicOn: nextState,
+          isCameraOn,
+          isScreenSharing,
+          joinedAt: new Date().toISOString(),
+        });
+      }
     } else {
       setIsMicOn((prev) => !prev);
     }
@@ -310,6 +355,17 @@ export function useMeetingRoom({ meetingId, initialUser }: UseMeetingRoomOptions
       const success = await mediaProviderRef.current.setCameraEnabled(nextState);
       setIsCameraOn(success ? nextState : isCameraOn);
       syncLocalTracks();
+      if (channelRef.current && success) {
+        channelRef.current.track({
+          userId: initialUser.id,
+          name: initialUser.name,
+          isHost: initialUser.isHost,
+          isMicOn,
+          isCameraOn: nextState,
+          isScreenSharing,
+          joinedAt: new Date().toISOString(),
+        });
+      }
     } else {
       setIsCameraOn((prev) => !prev);
     }
@@ -335,6 +391,29 @@ export function useMeetingRoom({ meetingId, initialUser }: UseMeetingRoomOptions
     if (mediaProviderRef.current) {
       await mediaProviderRef.current.switchMicrophone(deviceId);
       syncLocalTracks();
+    }
+  };
+
+  const switchSpeaker = async (deviceId: string) => {
+    if (mediaProviderRef.current) {
+      await mediaProviderRef.current.switchSpeaker(deviceId);
+    }
+  };
+
+  const startAudio = async () => {
+    if (mediaProviderRef.current) {
+      const success = await mediaProviderRef.current.startAudio();
+      if (success) {
+        setCanPlaybackAudio(true);
+      }
+      return success;
+    }
+    return false;
+  };
+
+  const setParticipantVolume = (identity: string, volume: number) => {
+    if (mediaProviderRef.current) {
+      mediaProviderRef.current.setParticipantVolume(identity, volume);
     }
   };
 
@@ -408,6 +487,10 @@ export function useMeetingRoom({ meetingId, initialUser }: UseMeetingRoomOptions
     isSettingsOpen,
     unreadChatCount,
     elapsedSeconds,
+    canPlaybackAudio,
+    startAudio,
+    switchSpeaker,
+    setParticipantVolume,
     toggleMicrophone,
     toggleCamera,
     toggleScreenShare,

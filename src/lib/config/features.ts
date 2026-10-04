@@ -12,7 +12,7 @@ export const FEATURE_FLAGS = {
    *   Only external meeting links (Google Meet, Zoom, Teams) are exposed and active.
    * - When true: full internal WebRTC meeting infrastructure is enabled.
    */
-  ENABLE_INTERNAL_MEETINGS: false,
+  ENABLE_INTERNAL_MEETINGS: true,
 
   /**
    * Automatic Point Rule Engine.
